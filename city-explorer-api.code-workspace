@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../city-explorer/HornedBeasts/BackEnd"
+		},
+		{
+			"path": "../../city-explorer/HornedBeasts/frontEnd"
+		}
+	],
+	"settings": {}
+}
