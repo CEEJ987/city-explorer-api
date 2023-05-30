@@ -1,25 +1,38 @@
 'use strict';
 const axios = require('axios');
+const NodeCache = require("node-cache");
+const weatherCache = new NodeCache();
 
-module.exports.weather = ("/weather", async function(req, res) {
+module.exports.weatherData = ("/weather", async function (req, res) {
+  console.log(req.query);
   let cityname = req.query.city;
-  const weatherRequest = await axios.get(`https://api.weatherbit.io/v2.0/forecast/daily/?city=${cityname}&key=${process.env.KEY}`);
-  console.log(weatherRequest.data);
-  const weatherForecast = weatherRequest.data.data.map((day) => {
-    class Forecast {
-      constructor(date, description) {
-        this.date = date;
-        this.description = description;
+  let lat = req.query.lat;
+  let lon = req.query.lon;
+  let weatherstorage = weatherCache.get(cityname);
+  if (weatherstorage == undefined) {
+    const weatherRequest = await axios.get(`https://api.weatherbit.io/v2.0/forecast/daily/?city=${cityname}&key=${process.env.WEATHER_API_KEY}`);
+    console.log(weatherRequest.data);
+    const weatherForecast = weatherRequest.data.data.map((day) => {
+      class Forecast {
+        constructor(date, description) {
+          this.date = date;
+          this.description = description;
+
+        }
       }
-    }
-    return new Forecast(day.valid_date, day.weather.description);
-  });
-  res.send(weatherForecast);
+      return new Forecast(day.valid_date, day.weather.description);
+    });
+    weatherCache.set(cityname, weatherForecast, 3600)
+    res.send(weatherForecast);
+  }else{
+    response.send(weatherstorage);
+  }
+
 });
 
 let cache = require('./cache.js');
 
-module.exports.getWeather = function(latitude, longitude) {
+module.exports.weathercache = function (latitude, longitude) {
   const key = 'weather-' + latitude + longitude;
   const url = `http://api.weatherbit.io/v2.0/forecast/daily/?key=${process.env.WEATHER_API_KEY}&lang=en&lat=${latitude}&lon=${longitude}&days=5`;
 
